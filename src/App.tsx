@@ -1,18 +1,21 @@
 import { Delaunay } from "d3-delaunay";
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 
-import logo from './logo.svg';
 import './App.css';
 
-class App extends Component {
-  canvasRef = React.createRef<HTMLCanvasElement>();
+import Canvas from './Canvas';
 
+interface AppState {
+  mouseX: number | null;
+  mouseY: number | null;
+}
+
+class App extends Component<{}, AppState> {
   width = 600;
 
   height = 600;
 
-  points = [
+  anchors = [
     [100, 100],
     [100, 500],
     [300, 300],
@@ -20,88 +23,69 @@ class App extends Component {
     [500, 500],
   ];
 
-  componentDidMount() {
+  state = {
+    mouseX: null,
+    mouseY: null,
+  };
+
+  onMouseMove: React.MouseEventHandler = (event) => {
     const {
-      canvasRef,
-      renderCanvas,
-    } = this;
+      offsetLeft,
+      offsetTop,
+    } = (event.target as HTMLCanvasElement);
 
-    const canvas = canvasRef.current;
-    let context = null;
-
-    if (canvas) {
-      context = canvas.getContext('2d');
-    }
-
-    if (context) {
-      renderCanvas(context);
-    }
-  }
-
-  get delaunay() {
-    const {
-      points,
-    } = this;
-
-    return Delaunay.from(points);
-  }
-
-  get voronoi() {
-    const {
-      delaunay,
-      height,
-      points,
-      width,
-    } = this;
-
-    return delaunay.voronoi([0, 0, width, height]);
-  }
-
-  renderCanvas = (context: CanvasRenderingContext2D) => {
-    const {
-      canvasRef,
-      delaunay,
-      voronoi,
-    } = this;
-
-    console.log('renderCanvas started', {
-      context,
-      delaunay,
-      voronoi,
+    this.setState({
+      mouseX: event.clientX - offsetLeft,
+      mouseY: event.clientY - offsetTop,
     });
+  }
 
-    context.setLineDash([6, 2]);
-    context.beginPath();
-    context.strokeStyle = 'lightblue';
-    delaunay.render(context);
-    context.stroke();
+  get points() {
+    const {
+      anchors,
+      state: {
+        mouseX,
+        mouseY,
+      },
+    } = this;
 
-    context.setLineDash([1, 0]);
-    context.beginPath();
-    context.strokeStyle = 'black';
-    voronoi.render(context);
-    context.stroke();
+    const points = [
+      ...anchors,
+    ];
 
-    context.beginPath();
-    context.fillStyle = 'blue';
-    delaunay.renderPoints(context);
-    context.fill();
+    if (mouseX && mouseY) {
+      points.push([mouseX, mouseY]);
+    }
+
+    return points;
   }
 
   render() {
     const {
-      canvasRef,
       height,
+      onMouseMove,
+      points,
       width,
     } = this;
 
     return (
-      <div className="App">
-        <canvas
-          ref={canvasRef}
-          height={height}
-          width={width}
-        />
+      <div
+        className="App"
+      >
+        <div
+          className="Canvas-Container"
+          onMouseMove={onMouseMove}
+          style={{
+            height,
+            width,
+          }}
+        >
+          <Canvas
+            height={height}
+            points={points}
+            width={width}
+          />
+        </div>
       </div>
     );
   }
