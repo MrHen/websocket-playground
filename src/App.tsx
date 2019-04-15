@@ -5,14 +5,17 @@ import './App.css';
 
 import Canvas from './Canvas';
 
-class App extends Component {
-  canvasRef = React.createRef<HTMLCanvasElement>();
+interface AppState {
+  mouseX: number | null;
+  mouseY: number | null;
+}
 
+class App extends Component<{}, AppState> {
   width = 600;
 
   height = 600;
 
-  points = [
+  anchors = [
     [100, 100],
     [100, 500],
     [300, 300],
@@ -20,21 +23,69 @@ class App extends Component {
     [500, 500],
   ];
 
+  state = {
+    mouseX: null,
+    mouseY: null,
+  };
+
+  onMouseMove: React.MouseEventHandler = (event) => {
+    const {
+      offsetLeft,
+      offsetTop,
+    } = (event.target as HTMLCanvasElement);
+
+    this.setState({
+      mouseX: event.clientX - offsetLeft,
+      mouseY: event.clientY - offsetTop,
+    });
+  }
+
+  get points() {
+    const {
+      anchors,
+      state: {
+        mouseX,
+        mouseY,
+      },
+    } = this;
+
+    const points = [
+      ...anchors,
+    ];
+
+    if (mouseX && mouseY) {
+      points.push([mouseX, mouseY]);
+    }
+
+    return points;
+  }
+
   render() {
     const {
-      canvasRef,
       height,
+      onMouseMove,
       points,
       width,
     } = this;
 
     return (
-      <div className="App">
-        <Canvas
-          height={height}
-          points={points}
-          width={width}
-        />
+      <div
+        className="App"
+      >
+        <div
+          className="Canvas-Container"
+          onMouseMove={onMouseMove}
+          style={{
+            height,
+            width,
+          }}
+        >
+          <Canvas
+            height={height}
+            points={points}
+            width={width}
+          />
+        </div>
       </div>
     );
   }

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Delaunay } from "d3-delaunay";
 import React, { Component } from 'react';
 
@@ -19,14 +20,29 @@ class Canvas extends Component<CanvasProps> {
     } = this;
 
     const canvas = canvasRef.current;
-    let context = null;
-
     if (canvas) {
-      context = canvas.getContext('2d');
+      renderCanvas(canvas);
     }
+  }
 
-    if (context) {
-      renderCanvas(context);
+  componentDidUpdate(prevProps: CanvasProps) {
+    const {
+      canvasRef,
+      renderCanvas,
+      props: {
+        points: pointsNext,
+      },
+    } = this;
+
+    const {
+      points: pointsPrev,
+    } = prevProps;
+
+    if (!_.isEqual(pointsNext, pointsPrev)) {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        renderCanvas(canvas);
+      }
     }
   }
 
@@ -52,11 +68,21 @@ class Canvas extends Component<CanvasProps> {
     return delaunay.voronoi([0, 0, width, height]);
   }
 
-  renderCanvas = (context: CanvasRenderingContext2D) => {
+  renderCanvas = (canvas: HTMLCanvasElement) => {
     const {
       delaunay,
       voronoi,
+      props: {
+        height,
+        width,
+      },
     } = this;
+
+    const context = canvas.getContext('2d');
+
+    if (!context) {
+      return;
+    }
 
     console.log('renderCanvas started', {
       context,
@@ -64,21 +90,36 @@ class Canvas extends Component<CanvasProps> {
       voronoi,
     });
 
+    context.clearRect(0, 0, width, height);
+
+    context.beginPath();
+    context.fillStyle = '#eee';
+    context.strokeStyle = 'black';
+    voronoi.renderBounds(context);
+    context.stroke();
+    context.fill();
+
     context.setLineDash([6, 2]);
     context.beginPath();
+    context.fillStyle = 'transparent';
     context.strokeStyle = 'lightblue';
     delaunay.render(context);
     context.stroke();
+    context.fill();
 
     context.setLineDash([1, 0]);
     context.beginPath();
+    context.fillStyle = 'transparent';
     context.strokeStyle = 'black';
     voronoi.render(context);
     context.stroke();
+    context.fill();
 
     context.beginPath();
     context.fillStyle = 'blue';
+    context.strokeStyle = 'transparent';
     delaunay.renderPoints(context);
+    context.stroke();
     context.fill();
   }
 
