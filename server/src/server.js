@@ -15,9 +15,8 @@ const PLAYER_TYPES = {
 };
 
 const players = {};
-const clients = {};
 
-function playerInit({ client }) {
+function playerInit() {
   const id = uuid();
   const player = {
     id,
@@ -25,12 +24,21 @@ function playerInit({ client }) {
     y: null,
   };
   players[id] = player;
-  clients[id] = client;
   return player;
 }
 
 wss.on('connection', (client) => {
-  const player = playerInit({ client });
+  const player = playerInit();
+
+  client.on('close', () => {
+    delete players[player.id];
+
+    wss.clients.forEach(function each(clientNext) {
+      if (client !== clientNext && clientNext.readyState === WebSocket.OPEN) {
+        clientNext.send(json);
+      }
+    });
+  });
 
   client.on('message', (payload) => {
     let message;
@@ -58,11 +66,6 @@ wss.on('connection', (client) => {
       if (clientNext.readyState === WebSocket.OPEN) {
         clientNext.send(json);
       }
-    });
-
-    console.log('onmessage', {
-      message,
-      player,
     });
   });
 
