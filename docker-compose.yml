@@ -1,0 +1,11 @@
+version: "3.2"
+services:
+  client:
+    build: ./client
+    volumes:
+      - ./client/src:/usr/app/src
+      - ./client/public:/usr/app/public
+    command: npm run start
+    ports:
+      - "3000"
+    tty: true

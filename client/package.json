@@ -1,5 +1,5 @@
 {
-  "name": "websocket-playground",
+  "name": "websocket-playground-client",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
