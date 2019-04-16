@@ -76,11 +76,13 @@ class App extends Component<{}, AppState> {
               players: _.values(message.players),
               websocket,
             });
+            break;
           }
           case ACTIONS.MOVE: {
             this.setState({
               players: _.values(message.players),
             });
+            break;
           }
         }
       }
