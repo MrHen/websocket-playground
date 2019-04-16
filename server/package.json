@@ -1,0 +1,14 @@
+{
+    "name": "websocket-playground-server",
+    "version": "1.0.0",
+    "private": true,
+    "dependencies": {
+        "lodash": "^4.17.11",
+        "uuid": "^3.3.2",
+        "ws": "^6.2.1"
+    },
+    "devDependencies": {},
+    "scripts": {
+        "start": "node src/server.js"
+    }
+}
