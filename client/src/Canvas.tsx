@@ -84,12 +84,6 @@ class Canvas extends Component<CanvasProps> {
       return;
     }
 
-    console.log('renderCanvas started', {
-      context,
-      delaunay,
-      voronoi,
-    });
-
     context.clearRect(0, 0, width, height);
 
     context.beginPath();

@@ -7,5 +7,17 @@ services:
       - ./client/public:/usr/app/public
     command: npm run start
     ports:
-      - "3000"
+      - "3000:3000"
+    links:
+      - server
+    tty: true
+
+  server:
+    build: ./server
+    volumes:
+      - ./server/src:/usr/app/src
+      - ./server/public:/usr/app/public
+    command: npm run start
+    ports:
+      - "8080:8080"
     tty: true
