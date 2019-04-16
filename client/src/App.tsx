@@ -1,4 +1,4 @@
-import { Delaunay } from "d3-delaunay";
+import _ from 'lodash';
 import React, { Component } from 'react';
 
 import './App.css';
@@ -35,8 +35,8 @@ class App extends Component<{}, AppState> {
     } = (event.target as HTMLCanvasElement);
 
     this.setState({
-      mouseX: event.clientX - offsetLeft,
-      mouseY: event.clientY - offsetTop,
+         mouseX: event.clientX - offsetLeft,
+         mouseY: event.clientY - offsetTop,
     });
   }
 
