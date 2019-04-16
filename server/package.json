@@ -7,8 +7,14 @@
         "uuid": "^3.3.2",
         "ws": "^6.2.1"
     },
-    "devDependencies": {},
     "scripts": {
-        "start": "node src/server.js"
-    }
+        "start": "node src/server.js",
+        "test": "xo"
+    },
+    "devDependencies": {
+        "xo": "^0.24.0"
+    },
+	"xo": {
+		"space": true
+	}
 }

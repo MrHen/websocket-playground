@@ -1,17 +1,11 @@
-const _ = require('lodash');
 const uuid = require('uuid/v4');
 const WebSocket = require('ws');
 
-const wss = new WebSocket.Server({ port: 8080 });
+const wss = new WebSocket.Server({port: 8080});
 
 const ACTIONS = {
   START: 'start',
-  MOVE: 'move',
-};
-
-const PLAYER_TYPES = {
-  HUMAN: 'human',
-  STATIC: 'static',
+  MOVE: 'move'
 };
 
 const players = {};
@@ -21,48 +15,55 @@ function playerInit() {
   const player = {
     id,
     x: null,
-    y: null,
+    y: null
   };
   players[id] = player;
   return player;
 }
 
-wss.on('connection', (client) => {
+wss.on('connection', client => {
   const player = playerInit();
 
   client.on('close', () => {
     delete players[player.id];
 
-    wss.clients.forEach(function each(clientNext) {
+    wss.clients.forEach(clientNext => {
       if (client !== clientNext && clientNext.readyState === WebSocket.OPEN) {
         clientNext.send(json);
       }
     });
   });
 
-  client.on('message', (payload) => {
+  client.on('message', payload => {
     let message;
     try {
       message = JSON.parse(payload);
-    } catch (ex) {
+    } catch (error) {
       message = payload;
     }
 
-    switch(message.action) {
+    switch (message.action) {
       case ACTIONS.MOVE: {
         player.x = message.playerX;
         player.y = message.playerY;
+        break;
+      }
+
+      default: {
+        console.warn('Ignoring unknown action', {
+          action: message.action
+        });
       }
     }
 
     const response = {
       action: message.action,
       playerId: player.id,
-      players,
+      players
     };
     const json = JSON.stringify(response);
 
-    wss.clients.forEach(function each(clientNext) {
+    wss.clients.forEach(clientNext => {
       if (clientNext.readyState === WebSocket.OPEN) {
         clientNext.send(json);
       }
@@ -72,7 +73,7 @@ wss.on('connection', (client) => {
   const response = {
     action: ACTIONS.START,
     playerId: player.id,
-    players,
+    players
   };
   const json = JSON.stringify(response);
   client.send(json);
