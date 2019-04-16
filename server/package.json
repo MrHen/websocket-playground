@@ -4,17 +4,32 @@
     "private": true,
     "dependencies": {
         "lodash": "^4.17.11",
+        "nodemon": "^1.18.11",
+        "ts-node": "^8.1.0",
         "uuid": "^3.3.2",
         "ws": "^6.2.1"
     },
     "scripts": {
-        "start": "node src/server.js",
+        "build": "tsc",
+        "start": "nodemon -r ts-node/register ./src/server.ts",
         "test": "xo"
     },
     "devDependencies": {
+        "@types/uuid": "^3.4.4",
+        "@types/ws": "^6.0.1",
+        "@typescript-eslint/eslint-plugin": "^1.6.0",
+        "eslint-config-xo": "^0.26.0",
+        "eslint-config-xo-typescript": "^0.9.0",
+        "typescript": "^3.4.3",
         "xo": "^0.24.0"
     },
-	"xo": {
-		"space": true
-	}
+    "xo": {
+        "space": true
+    },
+    "eslintConfig": {
+        "extends": [
+            "xo",
+            "xo-typescript"
+        ]
+    }
 }

@@ -1,5 +1,11 @@
-const uuid = require('uuid/v4');
-const WebSocket = require('ws');
+import * as uuid from 'uuid/v4';
+import * as WebSocket from 'ws';
+
+interface Action {
+  action: string;
+  playerX?: number | null;
+  playerY?: number | null;
+}
 
 const wss = new WebSocket.Server({port: 8080});
 
@@ -34,12 +40,14 @@ wss.on('connection', client => {
     });
   });
 
-  client.on('message', payload => {
-    let message;
+  client.on('message', (payload: string) => {
+    let message: Action;
     try {
       message = JSON.parse(payload);
     } catch (error) {
-      message = payload;
+      message = {
+        action: payload,
+      };
     }
 
     switch (message.action) {
