@@ -11,7 +11,6 @@ const ACTIONS = {
 }
 
 const WEBSOCKET_ENDPOINT = 'ws://0.0.0.0:8080';
-const WEBSOCKET_HEARTBEAT_MESSAGE = 'heartbeat';
 
 interface PlayerState {
   id: string;
@@ -48,54 +47,57 @@ class App extends Component<{}, AppState> {
     websocket: null,
   };
 
+  websocket: WebSocket | null = null;
+
   componentDidMount() {
     const websocket = new WebSocket(WEBSOCKET_ENDPOINT);
-    websocket.onopen = () => {
-      console.log('onopen');
-    };
-    websocket.onmessage = (event) => {
-      let message;
-      try {
-        message = JSON.parse(event.data);
-      } catch (ex) {
-        message = event.data;
-      }
-      if (message === WEBSOCKET_HEARTBEAT_MESSAGE) {
-        console.log('onheartbeat', {
-          message,
-        });
-      } else {
-        console.log('onmessage', {
-          message,
-        });
+    websocket.onopen = this.handleOnOpen;
+    websocket.onmessage = this.handleOnMessage;
+    websocket.onerror = this.handleOnError;
+    websocket.onclose = this.handleOnClose;
 
-        switch(message.action) {
-          case ACTIONS.START: {
-            this.setState({
-              playerId: message.playerId,
-              players: _.values(message.players),
-              websocket,
-            });
-            break;
-          }
-          case ACTIONS.MOVE: {
-            this.setState({
-              players: _.values(message.players),
-            });
-            break;
-          }
-        }
-      }
-    };
-    websocket.onerror = (event) => {
-      console.log('onerror');
-    };
-    websocket.onclose = () => {
-      console.log('onclose');
-    };
+    this.websocket = websocket;
   }
 
-  onMouseMove: React.MouseEventHandler = (event) => {
+  handleOnClose = (event: CloseEvent) => {
+    console.log('handleOnClose', { event });
+  }
+
+  handleOnOpen = () => {
+    console.log('handleOnOpen');
+  }
+
+  handleOnError = (event: Event) => {
+    console.log('handleOnError', { event });
+  }
+
+  handleOnMessage = (event: MessageEvent) => {
+    let message;
+    try {
+      message = JSON.parse(event.data);
+    } catch (ex) {
+      message = event.data;
+    }
+
+    switch(message.action) {
+      case ACTIONS.START: {
+        this.setState({
+          playerId: message.playerId,
+          players: _.values(message.players),
+          websocket: this.websocket,
+        });
+        break;
+      }
+      case ACTIONS.MOVE: {
+        this.setState({
+          players: _.values(message.players),
+        });
+        break;
+      }
+    }
+  }
+
+  handleMouseMove: React.MouseEventHandler = (event) => {
     const {
       state: {
         playerId,
@@ -152,7 +154,7 @@ class App extends Component<{}, AppState> {
   render() {
     const {
       height,
-      onMouseMove,
+      handleMouseMove,
       points,
       width,
     } = this;
@@ -163,7 +165,7 @@ class App extends Component<{}, AppState> {
       >
         <div
           className="Canvas-Container"
-          onMouseMove={onMouseMove}
+          onMouseMove={handleMouseMove}
           style={{
             height,
             width,
