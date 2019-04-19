@@ -138,13 +138,19 @@ class App extends Component<{}, AppState> {
       },
     } = this;
 
-    const points = [
-      ...anchors,
-    ];
+    const points = _.map(anchors, (anchor) => {
+      return {
+        x: anchor[0],
+        y: anchor[1],
+      };
+    });
 
     for (let player of players) {
       if (player.x && player.y) {
-        points.push([player.x, player.y]);
+        points.push({
+          x: player.x,
+          y: player.y,
+        });
       }
     }
 
